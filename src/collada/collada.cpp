@@ -555,11 +555,11 @@ void ColladaParser::parse_light( XMLElement* xml, LightInfo& light ) {
           e_constant_att && e_linear_att && e_quadratic_att) {
         string color_string = e_color->GetText();
         light.spectrum = spectrum_from_string( color_string );
-        light.constant_att = atof(e_falloff_deg->GetText());
-        light.constant_att = atof(e_falloff_exp->GetText());
+        light.falloff_deg = atof(e_falloff_deg->GetText());
+        light.falloff_exp = atof(e_falloff_exp->GetText());
         light.constant_att = atof(e_constant_att->GetText());
-        light.constant_att = atof(e_linear_att->GetText());
-        light.constant_att = atof(e_quadratic_att->GetText());
+        light.linear_att = atof(e_linear_att->GetText());
+        light.quadratic_att = atof(e_quadratic_att->GetText());
       } else {
         stat("Error: incomplete definition of spot light: " << light.id);
         exit(EXIT_FAILURE);

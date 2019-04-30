@@ -174,7 +174,7 @@ Ray Camera::generate_ray_for_thin_lens(double x, double y, double rndR, double r
     // TODO: 4.1
     // compute position and direction of ray from the input sensor sample coordinate.
     // Note: use rndR and rndTheta to uniformly sample a unit disk.
-    Ray chief_ray = generate_ray(1. - x, 1. - y);
+    Ray chief_ray = generate_ray(x, 1. - y);
     Vector3D chief_ray_dir = chief_ray.d;
     Vector3D pLens = Vector3D(
       lensRadius * sqrt(rndR) * cos(rndTheta), 

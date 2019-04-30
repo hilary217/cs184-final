@@ -71,9 +71,9 @@ PathTracer::PathTracer(size_t ns_aa,
   phase = new SchlickPhase(0.3);
   sphereSampler = new UniformSphereSampler3D();
 
-  extinction_coef = 0.5;
-  scattering_coef = 0.80;
-  ns_dist = 8;
+  extinction_coef = 0.01;
+  scattering_coef = 0.2;
+  ns_dist = 128;
 
   show_rays = true;
 

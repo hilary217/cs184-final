@@ -59,13 +59,29 @@ Spectrum PointLight::sample_L(const Vector3D& p, Vector3D* wi,
 // Spot Light //
 
 SpotLight::SpotLight(const Spectrum& rad, const Vector3D& pos,
-                     const Vector3D& dir, float angle) {
-
-}
+                     const Vector3D& dir, const float angle, 
+                     const double falloff_exp, const double constant_att, 
+                     const double linear_att, const double quadratic_att) : 
+  radiance(rad), position(pos), direction(dir), angle(angle), 
+  falloff_exp(falloff_exp), constant_att(constant_att), linear_att(linear_att), 
+  quadratic_att(quadratic_att) {}
 
 Spectrum SpotLight::sample_L(const Vector3D& p, Vector3D* wi,
                              float* distToLight, float* pdf) const {
-  return Spectrum();
+  Vector3D d = position - p;
+  *wi = d.unit();
+  double dist = d.norm();
+  *distToLight = dist;
+  *pdf = 1.0;
+  double cos_angle = dot(-*wi, direction.unit());
+  // std::cout << pow(cos_angle, falloff_exp) << std::endl;
+  if (cos_angle >= cos(.5 * angle)) {
+    return radiance * pow(cos_angle, falloff_exp) / 
+      (constant_att + linear_att * dist + quadratic_att * dist * dist);
+  } else {
+    // return radiance;
+    return Spectrum();
+  }
 }
 
 

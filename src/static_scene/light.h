@@ -64,7 +64,9 @@ class PointLight : public SceneLight {
 class SpotLight : public SceneLight {
  public:
   SpotLight(const Spectrum& rad, const Vector3D& pos, 
-            const Vector3D& dir, float angle);
+            const Vector3D& dir, const float angle, 
+            const double falloff_exp, const double constant_att, 
+            const double linear_att, const double quadratic_att);
   Spectrum sample_L(const Vector3D& p, Vector3D* wi, float* distToLight,
                     float* pdf) const;
   bool is_delta_light() const { return true; }
@@ -74,6 +76,10 @@ class SpotLight : public SceneLight {
   Vector3D position;
   Vector3D direction;
   float angle;
+  double falloff_exp;
+  double constant_att;
+  double linear_att;
+  double quadratic_att;
 
 }; // class SpotLight
 

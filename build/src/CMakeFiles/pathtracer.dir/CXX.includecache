@@ -94,6 +94,22 @@ ostream
 cmath
 -
 
+../CGL/include/GL/glew.h
+stddef.h
+-
+inttypes.h
+-
+stdint.h
+-
+inttypes.h
+-
+Availability.h
+-
+OpenGL/glu.h
+-
+GL/glu.h
+-
+
 /media/nagatoyuki/studying!!!0(>o<)0/真的学习/UCB/CS 184_ Computer Graphics/projects/final_project/src/bbox.h
 utility
 -
@@ -128,22 +144,6 @@ static_scene/aggregate.h
 vector
 -
 
-/media/nagatoyuki/studying!!!0(>o<)0/真的学习/UCB/CS 184_ Computer Graphics/projects/final_project/src/camera.cpp
-camera.h
-/media/nagatoyuki/studying!!!0(>o<)0/真的学习/UCB/CS 184_ Computer Graphics/projects/final_project/src/camera.h
-iostream
--
-sstream
--
-fstream
--
-CGL/misc.h
-/media/nagatoyuki/studying!!!0(>o<)0/真的学习/UCB/CS 184_ Computer Graphics/projects/final_project/src/CGL/misc.h
-CGL/vector2D.h
-/media/nagatoyuki/studying!!!0(>o<)0/真的学习/UCB/CS 184_ Computer Graphics/projects/final_project/src/CGL/vector2D.h
-CGL/vector3D.h
-/media/nagatoyuki/studying!!!0(>o<)0/真的学习/UCB/CS 184_ Computer Graphics/projects/final_project/src/CGL/vector3D.h
-
 /media/nagatoyuki/studying!!!0(>o<)0/真的学习/UCB/CS 184_ Computer Graphics/projects/final_project/src/camera.h
 iostream
 -
@@ -167,6 +167,40 @@ vector
 -
 CGL/matrix4x4.h
 /media/nagatoyuki/studying!!!0(>o<)0/真的学习/UCB/CS 184_ Computer Graphics/projects/final_project/src/collada/CGL/matrix4x4.h
+
+/media/nagatoyuki/studying!!!0(>o<)0/真的学习/UCB/CS 184_ Computer Graphics/projects/final_project/src/collada/material_info.h
+CGL/color.h
+/media/nagatoyuki/studying!!!0(>o<)0/真的学习/UCB/CS 184_ Computer Graphics/projects/final_project/src/collada/CGL/color.h
+collada_info.h
+/media/nagatoyuki/studying!!!0(>o<)0/真的学习/UCB/CS 184_ Computer Graphics/projects/final_project/src/collada/collada_info.h
+../bsdf.h
+/media/nagatoyuki/studying!!!0(>o<)0/真的学习/UCB/CS 184_ Computer Graphics/projects/final_project/src/bsdf.h
+
+/media/nagatoyuki/studying!!!0(>o<)0/真的学习/UCB/CS 184_ Computer Graphics/projects/final_project/src/collada/polymesh_info.h
+CGL/vector2D.h
+/media/nagatoyuki/studying!!!0(>o<)0/真的学习/UCB/CS 184_ Computer Graphics/projects/final_project/src/collada/CGL/vector2D.h
+collada_info.h
+/media/nagatoyuki/studying!!!0(>o<)0/真的学习/UCB/CS 184_ Computer Graphics/projects/final_project/src/collada/collada_info.h
+material_info.h
+/media/nagatoyuki/studying!!!0(>o<)0/真的学习/UCB/CS 184_ Computer Graphics/projects/final_project/src/collada/material_info.h
+
+/media/nagatoyuki/studying!!!0(>o<)0/真的学习/UCB/CS 184_ Computer Graphics/projects/final_project/src/halfEdgeMesh.h
+set
+-
+map
+-
+list
+-
+vector
+-
+utility
+-
+iostream
+-
+CGL/CGL.h
+/media/nagatoyuki/studying!!!0(>o<)0/真的学习/UCB/CS 184_ Computer Graphics/projects/final_project/src/CGL/CGL.h
+collada/polymesh_info.h
+/media/nagatoyuki/studying!!!0(>o<)0/真的学习/UCB/CS 184_ Computer Graphics/projects/final_project/src/collada/polymesh_info.h
 
 /media/nagatoyuki/studying!!!0(>o<)0/真的学习/UCB/CS 184_ Computer Graphics/projects/final_project/src/image.h
 CGL/color.h
@@ -194,15 +228,37 @@ bsdf.h
 phase.h
 /media/nagatoyuki/studying!!!0(>o<)0/真的学习/UCB/CS 184_ Computer Graphics/projects/final_project/src/phase.h
 
-/media/nagatoyuki/studying!!!0(>o<)0/真的学习/UCB/CS 184_ Computer Graphics/projects/final_project/src/part1_code.cpp
-part1_code.h
-/media/nagatoyuki/studying!!!0(>o<)0/真的学习/UCB/CS 184_ Computer Graphics/projects/final_project/src/part1_code.h
-time.h
--
-
-/media/nagatoyuki/studying!!!0(>o<)0/真的学习/UCB/CS 184_ Computer Graphics/projects/final_project/src/part1_code.h
+/media/nagatoyuki/studying!!!0(>o<)0/真的学习/UCB/CS 184_ Computer Graphics/projects/final_project/src/pathtracer.cpp
 pathtracer.h
 /media/nagatoyuki/studying!!!0(>o<)0/真的学习/UCB/CS 184_ Computer Graphics/projects/final_project/src/pathtracer.h
+bsdf.h
+/media/nagatoyuki/studying!!!0(>o<)0/真的学习/UCB/CS 184_ Computer Graphics/projects/final_project/src/bsdf.h
+ray.h
+/media/nagatoyuki/studying!!!0(>o<)0/真的学习/UCB/CS 184_ Computer Graphics/projects/final_project/src/ray.h
+stack
+-
+random
+-
+algorithm
+-
+sstream
+-
+CGL/CGL.h
+/media/nagatoyuki/studying!!!0(>o<)0/真的学习/UCB/CS 184_ Computer Graphics/projects/final_project/src/CGL/CGL.h
+CGL/vector3D.h
+/media/nagatoyuki/studying!!!0(>o<)0/真的学习/UCB/CS 184_ Computer Graphics/projects/final_project/src/CGL/vector3D.h
+CGL/matrix3x3.h
+/media/nagatoyuki/studying!!!0(>o<)0/真的学习/UCB/CS 184_ Computer Graphics/projects/final_project/src/CGL/matrix3x3.h
+CGL/lodepng.h
+/media/nagatoyuki/studying!!!0(>o<)0/真的学习/UCB/CS 184_ Computer Graphics/projects/final_project/src/CGL/lodepng.h
+GL/glew.h
+/media/nagatoyuki/studying!!!0(>o<)0/真的学习/UCB/CS 184_ Computer Graphics/projects/final_project/src/GL/glew.h
+static_scene/sphere.h
+/media/nagatoyuki/studying!!!0(>o<)0/真的学习/UCB/CS 184_ Computer Graphics/projects/final_project/src/static_scene/sphere.h
+static_scene/triangle.h
+/media/nagatoyuki/studying!!!0(>o<)0/真的学习/UCB/CS 184_ Computer Graphics/projects/final_project/src/static_scene/triangle.h
+static_scene/light.h
+/media/nagatoyuki/studying!!!0(>o<)0/真的学习/UCB/CS 184_ Computer Graphics/projects/final_project/src/static_scene/light.h
 
 /media/nagatoyuki/studying!!!0(>o<)0/真的学习/UCB/CS 184_ Computer Graphics/projects/final_project/src/pathtracer.h
 stack
@@ -294,6 +350,28 @@ scene.h
 CGL/lodepng.h
 /media/nagatoyuki/studying!!!0(>o<)0/真的学习/UCB/CS 184_ Computer Graphics/projects/final_project/src/static_scene/CGL/lodepng.h
 
+/media/nagatoyuki/studying!!!0(>o<)0/真的学习/UCB/CS 184_ Computer Graphics/projects/final_project/src/static_scene/light.h
+CGL/vector3D.h
+/media/nagatoyuki/studying!!!0(>o<)0/真的学习/UCB/CS 184_ Computer Graphics/projects/final_project/src/static_scene/CGL/vector3D.h
+CGL/matrix3x3.h
+/media/nagatoyuki/studying!!!0(>o<)0/真的学习/UCB/CS 184_ Computer Graphics/projects/final_project/src/static_scene/CGL/matrix3x3.h
+CGL/spectrum.h
+/media/nagatoyuki/studying!!!0(>o<)0/真的学习/UCB/CS 184_ Computer Graphics/projects/final_project/src/static_scene/CGL/spectrum.h
+../sampler.h
+/media/nagatoyuki/studying!!!0(>o<)0/真的学习/UCB/CS 184_ Computer Graphics/projects/final_project/src/sampler.h
+../image.h
+/media/nagatoyuki/studying!!!0(>o<)0/真的学习/UCB/CS 184_ Computer Graphics/projects/final_project/src/image.h
+scene.h
+/media/nagatoyuki/studying!!!0(>o<)0/真的学习/UCB/CS 184_ Computer Graphics/projects/final_project/src/static_scene/scene.h
+object.h
+/media/nagatoyuki/studying!!!0(>o<)0/真的学习/UCB/CS 184_ Computer Graphics/projects/final_project/src/static_scene/object.h
+
+/media/nagatoyuki/studying!!!0(>o<)0/真的学习/UCB/CS 184_ Computer Graphics/projects/final_project/src/static_scene/object.h
+../halfEdgeMesh.h
+/media/nagatoyuki/studying!!!0(>o<)0/真的学习/UCB/CS 184_ Computer Graphics/projects/final_project/src/halfEdgeMesh.h
+scene.h
+/media/nagatoyuki/studying!!!0(>o<)0/真的学习/UCB/CS 184_ Computer Graphics/projects/final_project/src/static_scene/scene.h
+
 /media/nagatoyuki/studying!!!0(>o<)0/真的学习/UCB/CS 184_ Computer Graphics/projects/final_project/src/static_scene/primitive.h
 ../intersection.h
 /media/nagatoyuki/studying!!!0(>o<)0/真的学习/UCB/CS 184_ Computer Graphics/projects/final_project/src/intersection.h
@@ -307,6 +385,18 @@ primitive.h
 /media/nagatoyuki/studying!!!0(>o<)0/真的学习/UCB/CS 184_ Computer Graphics/projects/final_project/src/static_scene/primitive.h
 vector
 -
+
+/media/nagatoyuki/studying!!!0(>o<)0/真的学习/UCB/CS 184_ Computer Graphics/projects/final_project/src/static_scene/sphere.h
+object.h
+/media/nagatoyuki/studying!!!0(>o<)0/真的学习/UCB/CS 184_ Computer Graphics/projects/final_project/src/static_scene/object.h
+primitive.h
+/media/nagatoyuki/studying!!!0(>o<)0/真的学习/UCB/CS 184_ Computer Graphics/projects/final_project/src/static_scene/primitive.h
+
+/media/nagatoyuki/studying!!!0(>o<)0/真的学习/UCB/CS 184_ Computer Graphics/projects/final_project/src/static_scene/triangle.h
+object.h
+/media/nagatoyuki/studying!!!0(>o<)0/真的学习/UCB/CS 184_ Computer Graphics/projects/final_project/src/static_scene/object.h
+primitive.h
+/media/nagatoyuki/studying!!!0(>o<)0/真的学习/UCB/CS 184_ Computer Graphics/projects/final_project/src/static_scene/primitive.h
 
 /media/nagatoyuki/studying!!!0(>o<)0/真的学习/UCB/CS 184_ Computer Graphics/projects/final_project/src/work_queue.h
 mutex

@@ -143,8 +143,11 @@ namespace CGL {
         if (light -> is_delta_light()) {
           // one sample
           Spectrum radiance_in = light -> sample_L(hit_p, wi, &dist, &pdf);
+          if (radiance_in != Spectrum()) {
+            // std::cout << "Sample_L reflect: " << radiance_in << std::endl;
+            // std::cout << interact.t <<  std::endl << std::endl;
+          }
           Vector3D w_in = w2o * *wi;
-          // cout << "delta " << pdf << endl;
           
           if (cos_theta(w_in) < 0) continue;
 
@@ -215,6 +218,10 @@ namespace CGL {
 
         if (light -> is_delta_light()) {
           Spectrum radiance_in = light -> sample_L(hit_p, wi, &dist, &pdf);
+          if (radiance_in != Spectrum()) {
+            // std::cout << "Sample_L: " << radiance_in << std::endl;
+            // std::cout << interact.t <<  std::endl << std::endl;
+          }
           Vector3D w_in = w2o * *wi;
           
           if (cos_theta(w_in) < 0) continue;
@@ -271,12 +278,13 @@ namespace CGL {
   Spectrum PathTracer::zero_bounce_radiance(
     const Ray&r, const Intersection& isect, const Interaction& interact) {
     // Returns the light that results from no bounces of light
-    
-    
-    // if (not interact.interacted) {
-    Vector3D isect_pos = r.o + isect.t * r.d;
-    return estimate_reduced_radiance(
-      isect.bsdf -> get_emission(), isect_pos, r.o);
+      
+      if (interact.interacted) {
+        return Spectrum();
+      }
+      Vector3D p = r.o + isect.t * r.d;
+      return estimate_reduced_radiance(
+        isect.bsdf -> get_emission(), p, r.o);
   }
 
   Spectrum PathTracer::one_bounce_radiance(
@@ -425,7 +433,8 @@ namespace CGL {
     // This changes if you implement hemispherical lighting for extra credit.
 
     if (!bvh->intersect(r, &isect)) {
-      return envLight ? envLight -> sample_dir(r) : L_out;
+      ;
+      // return envLight ? envLight -> sample_dir(r) : L_out;
       // return L_out;
     }
 
@@ -457,8 +466,10 @@ namespace CGL {
       // arrive at the camera
       if (sampled_dist >= isect.t) {
         interact.interacted = false;
+        double pre_pdf = pdf;
         pdf = exp(- extinction_coef * isect.t);
-        Spectrum to_add = 1. / double(ns_dist) * 
+        Spectrum to_add = 1. / double(ns_dist) *
+        // Spectrum to_add = 1. / double(ns_dist) * pre_pdf / pdf *
           (zero_bounce_radiance(r, isect, interact) + 
           at_least_one_bounce_radiance(r, isect, interact));
         L_out += to_add;
