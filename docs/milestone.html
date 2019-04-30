@@ -1,0 +1,70 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<style>  
+    div.padded {  
+      padding-top: 0px;  
+      padding-right: 100px;  
+      padding-bottom: 0.25in;  
+      padding-left: 100px;  
+    }  
+  </style> 
+<title>Your Name  |  CS 184</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+</head>
+<body>
+<br />
+<h1 align="middle">Assignment :Final Project</h1>
+    <h2 align="middle">Kaifei Peng, Jinrui Zhang, Ruixin Huang</h2>
+
+    <div class="padded">
+            <h2 align="Overview">Idea</h2>
+        <p> We are implementing volumetric scattering rendering in accordance with the paper provided in the project idea page (i.e. [1]). We chose to extend and modify the codes in project 3, which we consider is a good starting point of our rendering. We have basically implemented the random walk ray tracing introduced in the chapter 3 of paper [1] and substitute the old ray tracing method in project 3 with this new one. After substitution, reflecting and scattering events can be both rendered correctly (hopefully), while only reflecting can be done using old method.</p>
+
+    <h2 align="middle">Idea</h2>
+    <p>In project 3, we trace a ray recursively by tracing its “bounces” (reflection on surfaces) separately. In final project, “bounces” can not only take places on surfaces but also on atomospheric particles, which is commonly referred “scattering”. Intuitively, scattering can be considerd as something that “prevent the light arriving at the surfaces with a certain probability”.</p>
+     
+    <h2 align="middle">Implementation Preparation</h2>
+    <p>To implement aforementioned scattering events, some preparetion code were written:
+        (1) DistanceSampler(): this is a sampler that samples a distance value according to a exponentially decreasing probabilistic density function which is introduced in chapter 3 of [1];
+        (2) Schlick Phase Function: this fucntion estimates scattered outgoing ray spectrum for a scattering events. Intuitively, this function acts silmilarly as brdf function in reflection.
+        
+    </p>
+    <h2 align="middle">Further Implementation</h2>
+    <p>After finishing preparation codes, we have modified ray tracing code in project 3. Speficially, in at_least_one_bounce(), we first sample a travelling distance for the currently traced ray using DistanceSampler(), denoted by d. If d is less than the distance to the nearest surface, we can assume that the ray is “intercepted” before it reaches and surface and is reflected,  in this case we set the “interaction” as “scattering”. Otherwise, the ray reaches the surface and is reflected as implemented in project 3, and the “interaction” is set to “reflecting”.</p>
+
+    <h2 align="middle"> Implementation Details</h2>
+    <p>For each ray-environment interaction, we use importance sampling to estimate the direct illumination. For each imcoming light, we multiply the incoming radiance with a cosine term and a brdf term if the interaction is “reflecting”; otherwise (when interaction is “scatteing”), we multiply with a phase function term and some coeffients related to the optic property of medium in the atmosphere. Formally, the formulas are expressed as below:</p>
+    <p>Direct illuminance estimation for reflecting:</p>
+    <img src="1.png" width="480px" />
+
+     <p>Direct illuminance estimation for scattering:</p>
+     <img src="2.png" width="480px" />
+
+      <h2 align="middle">Summary</h2>
+      <p>Important pseudo codes can be viewed in our milestone video/slides.
+            In summary, at this point we have done:
+      <br>
+            (1) Designing phase function and a pdf-based sampler for sampling direction of next bounce with inverse method.
+      </br>
+            (2) Designing a distance sampler according to [1] using inverse method;
+      <br>
+            (3) Modify the skeleton and functions defined to fit scattering effects into our work.
+      </br>
+            
+            </p>
+
+    <h2 align="middle">References</h2>
+    <p>[1] Eric P. Lafortune and Yves D. Willems, Rendering Participating Media with Bidirectional Path Tracing, 7th Eurographics Workshop on Rendering</p>
+ 
+
+
+            
+</div>
+</body>
+</html>
+
+
+
+
