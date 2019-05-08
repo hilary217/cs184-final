@@ -125,8 +125,8 @@ private:
 class SchlickPhase : public Phase {
  public:
 
-  SchlickPhase() : k(0.4) { }
-  SchlickPhase(const double &k) : k(k) { }
+  SchlickPhase() : k(Spectrum(0.2, 0.2, 0.4)) { }
+  SchlickPhase(const double &k) : k(Spectrum(k, k, k)) { }
 
   Spectrum f(const Vector3D& wo, const Vector3D& wi);
   Spectrum sample_f(const Vector3D& wo, Vector3D* wi, float* pdf);
@@ -138,7 +138,7 @@ private:
   // preferential scattering direction. As with g, total backward scattering
   // is obtained with k=−1, k=1 gives total forward scattering, and k = 0 
   // corresponds to isotropic scattering. 
-  double k;
+  Spectrum k;
   SchlickSampler3D sampler = SchlickSampler3D(k);
 
 }; // class SchlickPhase

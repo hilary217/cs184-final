@@ -98,18 +98,21 @@ Vector3D SchlickSampler3D::get_sample() const {
 Vector3D SchlickSampler3D::get_sample(float *pdf) const {
   // Sampling of z changed according to HenyeyGreenstein phase function
   double u, z;
-  double k2 = k * k;
+  std::srand(int(time(0)));
+  int rand_num = std::rand() % 3;
+  double k1 = rand_num == 0 ? k.r : (rand_num == 1 ? k.g : k.b); 
+  double k2 = k1 * k1;
 
   do {
     u = random_uniform();
-    z = ((k2 - 1) / (2. * k * u - k + 1) + 1.) / k;
+    z = ((k2 - 1) / (2. * k1 * u - k1 + 1) + 1.) / k1;
     // printf("%f", z);
   } while(z > 1. or z < -1.);
 
   double sinTheta = sqrt(std::max(0.0, 1.0f - z * z));
 
   double phi = 2.0f * PI * random_uniform();
-  *pdf = (1. - k2) / (2. * pow((1. - k * z), 2.));
+  *pdf = (1. - k2) / (2. * pow((1. - k1 * z), 2.));
   return Vector3D(cos(phi) * sinTheta, sin(phi) * sinTheta, z);
 }
 

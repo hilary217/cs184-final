@@ -121,13 +121,13 @@ class HenyeyGreensteinSampler3D : public Sampler3D {
 
 class SchlickSampler3D : public Sampler3D {
  public:
-  SchlickSampler3D() : k(0.0) {}
-  SchlickSampler3D(double &k) : k(k) {}
+  SchlickSampler3D() : k(Spectrum(0., 0., 0.)) {}
+  SchlickSampler3D(Spectrum &k) : k(k) {}
   Vector3D get_sample() const;
   Vector3D get_sample(float* pdf) const;
   
  private:
-  double k;
+  Spectrum k;
 }; // class SchlickSampler3D
 
 class DistanceSampler1D : public Sampler1D {

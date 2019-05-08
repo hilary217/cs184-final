@@ -51,11 +51,12 @@ Spectrum SchlickPhase::f(const Vector3D& wo, const Vector3D& wi) {
   // This function takes in both wo and wi and returns the evaluation of
   // the BSDF for those two directions.
   double costheta = dot(wo, -wi) / (wo.norm() * wi.norm());
+  Spectrum identity = Spectrum(1., 1., 1.);
 
-  double numerator = 1. - k * k;
-  double denominator = 4. * PI * pow((1. +  k * costheta), 2.);
-  double p_sl = numerator / denominator;
-  return Spectrum(p_sl, p_sl, p_sl);
+  Spectrum numerator = identity - k * k;
+  Spectrum root = identity + costheta * k;
+  Spectrum denominator = 4. * PI * root * root;
+  return numerator / denominator;
 }
 
 Spectrum SchlickPhase::sample_f(const Vector3D& wo, Vector3D* wi, float* pdf) {

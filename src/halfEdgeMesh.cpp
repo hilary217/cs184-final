@@ -364,6 +364,9 @@ void HalfedgeMesh::build(const vector<vector<Index> >& polygons,
 
   // Now that we have the connectivity, we copy the list of vertex
   // positions into member variables of the individual vertices.
+  cerr << "(number of positions in input: " << vertexPositions.size() << ")"
+        << endl;
+  cerr << "(  number of vertices in mesh: " << vertices.size() << ")" << endl;
   if (vertexPositions.size() != vertices.size()) {
     cerr << "Error converting polygons to halfedge mesh: number of vertex "
             "positions is different from the number of distinct vertices!"
