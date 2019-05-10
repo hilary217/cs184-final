@@ -98,9 +98,10 @@ Vector3D SchlickSampler3D::get_sample() const {
 Vector3D SchlickSampler3D::get_sample(float *pdf) const {
   // Sampling of z changed according to HenyeyGreenstein phase function
   double u, z;
-  std::srand(int(time(0)));
+  // std::srand(int(time(0)));
   int rand_num = std::rand() % 3;
-  double k1 = rand_num == 0 ? k.r : (rand_num == 1 ? k.g : k.b); 
+  // double k1 = rand_num == 0 ? k.r : (rand_num == 1 ? k.g : k.b); 
+  double k1 = k.b; 
   double k2 = k1 * k1;
 
   do {
@@ -122,6 +123,7 @@ double DistanceSampler1D::get_sample() const {
 }
 
 double DistanceSampler1D::get_sample(float *pdf) const {
+  double extinction = pos2extinction(origin);
   double u = random_uniform();
   double distance;
   distance = - log(1. - u) / extinction;

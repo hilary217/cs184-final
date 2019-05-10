@@ -103,15 +103,18 @@ BVHNode *BVHAccel::construct_bvh(const std::vector<Primitive*>& prims, size_t ma
       r_prims.push_back(p);
   }
   
+  int dead = 0;
   while (l_prims.empty() or r_prims.empty()) {
     // cout << "dead" << endl;
     // cout << l_prims.size() << endl;
     // cout << r_prims.size() << endl;
-    // cout <<split_point_value << endl;
+    // cout << split_point_value << endl;
+
     double new_split_point = 0.;
     double n_prims = 0.;
     for (Primitive *p : prims) {
       n_prims += 1;
+      // cout << p -> get_bbox().centroid()[split_axis] << endl;
       new_split_point += p -> get_bbox().centroid()[split_axis];
     }
     split_point_value = new_split_point / n_prims;
@@ -124,12 +127,25 @@ BVHNode *BVHAccel::construct_bvh(const std::vector<Primitive*>& prims, size_t ma
       // split_point_value = (bbox.min[split_axis] + split_point_value) / 2;
       l_prims.clear();
     }
+    
+    if (dead) {
+      for (auto i = 0; i < prims.size(); i++) {
+        if (i < prims.size() / 2)
+          l_prims.push_back(prims[i]);
+        else
+          r_prims.push_back(prims[i]);
+      }
+      break;
+    }
+
     for (Primitive *p : prims) {
       if (p -> get_bbox().centroid()[split_axis] < split_point_value)
         l_prims.push_back(p);
       else
         r_prims.push_back(p);
     }
+
+    dead ++;
   }
 
   node -> l = construct_bvh(l_prims, max_leaf_size);

@@ -56,7 +56,9 @@ Spectrum SchlickPhase::f(const Vector3D& wo, const Vector3D& wi) {
   Spectrum numerator = identity - k * k;
   Spectrum root = identity + costheta * k;
   Spectrum denominator = 4. * PI * root * root;
-  return numerator / denominator;
+  Spectrum rtr = numerator / denominator;
+  // std::cout << rtr << std::endl;
+  return rtr;
 }
 
 Spectrum SchlickPhase::sample_f(const Vector3D& wo, Vector3D* wi, float* pdf) {

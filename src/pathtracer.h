@@ -272,7 +272,11 @@ class PathTracer {
   double scattering_coef;
   size_t ns_dist;
   Phase* phase;
+  DistanceSampler1D *distanceSampler;
   Sampler3D* sphereSampler;
+  Spectrum pos2phase(const Vector3D& pos);
+  static double pos2extinction(const Vector3D& pos);
+  static double pos2scattering(const Vector3D& pos);
 
   std::vector<int> sampleCountBuffer;   ///< sample count buffer
 

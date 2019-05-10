@@ -35,12 +35,14 @@ struct Intersection {
 
 struct Interaction {
 
+  Interaction() : t (INF_D), interacted(false) { }
   Interaction(Phase* phase) : t (INF_D), interacted(false), phase(phase) { }
+  // ~Interaction() {delete phase;}
 
   double t;
   bool interacted;
   Vector3D n; // incoming ray direction
-  Phase *phase;
+  Phase* phase;
 
   // More to follow.
 };

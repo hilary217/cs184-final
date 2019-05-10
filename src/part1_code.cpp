@@ -50,16 +50,16 @@ namespace CGL {
         Vector3D wi = hemisphereSampler -> get_sample();
         double pdf;
         
-        Intersection *i = new Intersection();
+        Intersection i;
         Vector3D wi_world = o2w * wi;
 
         Vector3D biased_hit_p = hit_p + EPS_D * wi_world;
 
         Ray sample_ray = Ray(biased_hit_p, wi_world);
-        if (bvh -> intersect(sample_ray, i)) {
-          Spectrum emission =  i -> bsdf -> get_emission();
+        if (bvh -> intersect(sample_ray, &i)) {
+          Spectrum emission =  i.bsdf -> get_emission();
           if (emission != Spectrum()) {
-            Vector3D light_pos = biased_hit_p + i -> t * wi_world;
+            Vector3D light_pos = biased_hit_p + i.t * wi_world;
             Spectrum L_reduced = estimate_reduced_radiance(
               emission, biased_hit_p, light_pos);
             L_out += 
@@ -67,7 +67,6 @@ namespace CGL {
               isect.bsdf -> f(w2o * -r.d, wi) * cos_theta(wi);
           }
         }
-        delete i;
       }
       return L_out;
     }
@@ -88,24 +87,24 @@ namespace CGL {
         double pdf;
         
         // Intersection i here is the intersection between wi and light source
-        Intersection *i = new Intersection();
+        Intersection i;
         Vector3D wi_world = o2w * wi;
 
         Vector3D biased_hit_p = hit_p + EPS_D * wi_world;
 
         Ray sample_ray = Ray(biased_hit_p, wi_world);
-        if (bvh -> intersect(sample_ray, i)) {
-          Spectrum emission =  i -> bsdf -> get_emission();
+        if (bvh -> intersect(sample_ray, &i)) {
+          Spectrum emission =  i.bsdf -> get_emission();
           if (emission != Spectrum()) {
-            Vector3D light_pos = biased_hit_p + i -> t * wi_world;
+            Vector3D light_pos = biased_hit_p + i.t * wi_world;
             Spectrum L_reduced = estimate_reduced_radiance(
               emission, biased_hit_p, light_pos);
             L_out += 
-              (4 * PI / double(num_samples)) * scattering_coef / extinction_coef *
+              (4 * PI / double(num_samples)) * pos2scattering(hit_p) / pos2extinction(hit_p) *
               L_reduced * interact.phase -> f(w_out, wi);
           }
         }
-        delete i;
+
       }
       return L_out;
     }
@@ -137,26 +136,27 @@ namespace CGL {
       
       for (auto it = lights.begin(); it != lights.end(); it ++) {
         SceneLight *light = *it;
-        Vector3D *wi = new Vector3D();
+        Vector3D wi;
         float dist, pdf;
 
         if (light -> is_delta_light()) {
           // one sample
-          Spectrum radiance_in = light -> sample_L(hit_p, wi, &dist, &pdf);
+          Spectrum radiance_in = light -> sample_L(hit_p, &wi, &dist, &pdf);
           if (radiance_in != Spectrum()) {
             // std::cout << "Sample_L reflect: " << radiance_in << std::endl;
             // std::cout << interact.t <<  std::endl << std::endl;
           }
-          Vector3D w_in = w2o * *wi;
+          Vector3D w_in = w2o * wi;
           
           if (cos_theta(w_in) < 0) continue;
 
-          Vector3D biased_hit_p = hit_p + EPS_D * *wi;
+          Vector3D biased_hit_p = hit_p + EPS_D * wi;
           
-          Ray out_ray = Ray(biased_hit_p, *wi, double(dist));
-          Intersection *i = new Intersection();
-          if (not bvh -> intersect(out_ray, i)) {
-            Vector3D light_pos = biased_hit_p + dist * *wi;
+          Ray out_ray = Ray(biased_hit_p, wi, double(dist));
+
+          Intersection i;
+          if (not bvh -> intersect(out_ray, &i)) {
+            Vector3D light_pos = biased_hit_p + dist * wi;
             Spectrum L_reduced = estimate_reduced_radiance(
               radiance_in, light_pos, biased_hit_p);
             L_out += L_reduced * isect.bsdf -> f(w_out, w_in) * 
@@ -164,36 +164,34 @@ namespace CGL {
             // std::cout << "bsdf delta: " << L_out << std::endl;
             // std::cout << "bsdf delta dist: " << dist << std::endl;
           }
-          delete i;
         }
 
         else
         {
           // ns_area
           for (int j = 0; j != ns_area_light; j++) {
-            Spectrum radiance_in = light -> sample_L(hit_p, wi, &dist, &pdf);
-            Vector3D w_in = w2o * *wi;
+            Spectrum radiance_in = light -> sample_L(hit_p, &wi, &dist, &pdf);
+            Vector3D w_in = w2o * wi;
             // cout << "area " << pdf << endl;
             // cout << "ns_area_light " << ns_area_light << endl;
             
             if (cos_theta(w_in) < 0) continue;
 
-            Vector3D biased_hit_p = hit_p + EPS_D * *wi;
+            Vector3D biased_hit_p = hit_p + EPS_D * wi;
             
-            Ray out_ray = Ray(biased_hit_p, *wi, double(dist));
-            Intersection *i = new Intersection();
-            if (not bvh -> intersect(out_ray, i)) {
-              Vector3D light_pos = biased_hit_p + dist * *wi;
+            Ray out_ray = Ray(biased_hit_p, wi, double(dist));
+
+            Intersection i;
+            if (not bvh -> intersect(out_ray, &i)) {
+              Vector3D light_pos = biased_hit_p + dist * wi;
               Spectrum L_reduced = estimate_reduced_radiance(
                 radiance_in, light_pos, biased_hit_p);
               L_out += (1. / ns_area_light) * 
                 L_reduced * isect.bsdf -> f(w_out, w_in) * cos_theta(w_in) / pdf;
               // std::cout << "bsdf: " << L_out << std::endl;
             }
-            delete i;
           }
         }
-        delete wi;
         
       }
 
@@ -213,60 +211,59 @@ namespace CGL {
       
       for (auto it = lights.begin(); it != lights.end(); it ++) {
         SceneLight *light = *it;
-        Vector3D *wi = new Vector3D();
+        Vector3D wi;
         float dist, pdf;
 
         if (light -> is_delta_light()) {
-          Spectrum radiance_in = light -> sample_L(hit_p, wi, &dist, &pdf);
+          Spectrum radiance_in = light -> sample_L(hit_p, &wi, &dist, &pdf);
           if (radiance_in != Spectrum()) {
             // std::cout << "Sample_L: " << radiance_in << std::endl;
             // std::cout << interact.t <<  std::endl << std::endl;
           }
-          Vector3D w_in = w2o * *wi;
+          Vector3D w_in = w2o * wi;
           
           if (cos_theta(w_in) < 0) continue;
 
-          Vector3D biased_hit_p = hit_p + EPS_D * *wi;
-          Ray out_ray = Ray(biased_hit_p, *wi, double(dist));
-          Intersection *i = new Intersection();
-          if (not bvh -> intersect(out_ray, i)) {
-            Vector3D light_pos = biased_hit_p + dist * *wi;
+          Vector3D biased_hit_p = hit_p + EPS_D * wi;
+          Ray out_ray = Ray(biased_hit_p, wi, double(dist));
+
+          Intersection i;
+          if (not bvh -> intersect(out_ray, &i)) {
+            Vector3D light_pos = biased_hit_p + dist * wi;
             Spectrum L_reduced = estimate_reduced_radiance(
               radiance_in, light_pos, biased_hit_p);
-            L_out += scattering_coef / extinction_coef *
+            L_out += pos2scattering(hit_p) / pos2extinction(hit_p) *
               L_reduced * interact.phase -> f(w_out, w_in) / pdf;
             // std::cout << "phase delta: " << L_out << std::endl;
             // std::cout << "phase delta dist: " << dist << std::endl;
           }
-          delete i;
         }
 
         else
         {
           // ns_area
           for (int j = 0; j != ns_area_light; j++) {
-            Spectrum radiance_in = light -> sample_L(hit_p, wi, &dist, &pdf);
-            Vector3D w_in = w2o * *wi;
+            Spectrum radiance_in = light -> sample_L(hit_p, &wi, &dist, &pdf);
+            Vector3D w_in = w2o * wi;
             // cout << "area " << pdf << endl;
             // cout << "ns_area_light " << ns_area_light << endl;
             
             if (cos_theta(w_in) < 0) continue;
 
-            Vector3D biased_hit_p = hit_p + EPS_D * *wi;
-            Ray out_ray = Ray(biased_hit_p, *wi, double(dist));
-            Intersection *i = new Intersection();
-            if (not bvh -> intersect(out_ray, i)) {
-              Vector3D light_pos = biased_hit_p + dist * *wi;
+            Vector3D biased_hit_p = hit_p + EPS_D * wi;
+            Ray out_ray = Ray(biased_hit_p, wi, double(dist));
+
+            Intersection i;
+            if (not bvh -> intersect(out_ray, &i)) {
+              Vector3D light_pos = biased_hit_p + dist * wi;
               Spectrum L_reduced = estimate_reduced_radiance(
                 radiance_in, light_pos, biased_hit_p);
-              L_out += (1. / ns_area_light) * (scattering_coef / extinction_coef) * 
+              L_out += (1. / ns_area_light) * (pos2scattering(hit_p) / pos2extinction(hit_p)) * 
                 L_reduced * interact.phase -> f(w_out, w_in) / pdf;
               // std::cout << "phase: " << L_out << std::endl;
             }
-            delete i;
           }
         }
-        delete wi;
         
       }
 
@@ -302,6 +299,7 @@ namespace CGL {
 
   Spectrum PathTracer::at_least_one_bounce_radiance(
     const Ray&r, const Intersection& isect, const Interaction& interact) {
+
     // reflect
     if (not interact.interacted) {
       Matrix3x3 o2w;
@@ -320,46 +318,47 @@ namespace CGL {
       // Here is where your code for sampling the BSDF,
       // performing Russian roulette step, and returning a recursively 
       // traced ray (when applicable) goes
-      Vector3D *w_in = new Vector3D();
+      Vector3D w_in;
       float pdf_dir;
-      Spectrum sampled_bsdf = isect.bsdf ->sample_f(w_out, w_in, &pdf_dir);
+      Spectrum sampled_bsdf = isect.bsdf ->sample_f(w_out, &w_in, &pdf_dir);
       
       float cpdf = 0.6;
       // if (false) {
       // if ((r.depth > 1 and coin_flip(cpdf)) or (r.depth == max_ray_depth)) {
       if ((r.depth > 1 and coin_flip(cpdf))) {
-        Vector3D wi = o2w * *w_in;
+        Vector3D wi = o2w * w_in;
         Ray new_ray = Ray(hit_p + EPS_D * wi, wi, INF_D, r.depth - 1);
         Intersection i;
-        Interaction ita(phase);
         if (bvh -> intersect(new_ray, &i)) {
           for (size_t j = 0; j < 2; j++) {
             
-            DistanceSampler1D *distanceSampler = new DistanceSampler1D(extinction_coef);
+            Interaction ita;
             float pdf_dist;
+            distanceSampler -> set_ray(new_ray.o, new_ray.d);
             double sampled_dist = distanceSampler -> get_sample(&pdf_dist);
-            delete distanceSampler;
             if (sampled_dist >= i.t) {
               ita.interacted = false;
               pdf_dist = exp(- extinction_coef * i.t);
             }
             else {
               // ita.interacted = false;
+              Vector3D next_ita_point = new_ray.o + new_ray.d * sampled_dist;
+              SchlickPhase *phase_pos = new SchlickPhase(pos2phase(next_ita_point));
+
               ita.interacted = true;
               ita.t = sampled_dist;
               new_ray.max_t = sampled_dist;
               ita.n = -new_ray.d;
-              ita.phase = phase;
+              ita.phase = phase_pos;
             } 
             Spectrum radiance_in = at_least_one_bounce_radiance(new_ray, i, ita);
             if (isect.bsdf -> is_delta())
               radiance_in += zero_bounce_radiance(new_ray, i, ita);
             if (pdf_dir != 0)
-              L_out += (1. / 2.) * radiance_in * sampled_bsdf * abs_cos_theta(*w_in) / pdf_dir / cpdf;
+              L_out += (1. / 2.) * radiance_in * sampled_bsdf * abs_cos_theta(w_in) / pdf_dir / cpdf;
           }
         }
       }
-      delete w_in;
       
       return L_out;
     }
@@ -379,45 +378,48 @@ namespace CGL {
       // Here is where your code for sampling the BSDF,
       // performing Russian roulette step, and returning a recursively 
       // traced ray (when applicable) goes
-      Vector3D *w_in = new Vector3D();
+      Vector3D w_in;
       float pdf_dir;
-      Spectrum sampled_phase_f = interact.phase ->sample_f(w_out, w_in, &pdf_dir);
+      Spectrum sampled_phase_f = interact.phase ->sample_f(w_out, &w_in, &pdf_dir);
+      delete interact.phase;
       
       float cpdf = 0.6;
       // if (false) {
       // if ((r.depth > 1 and coin_flip(cpdf)) or (r.depth == max_ray_depth)) {
+
       if ((r.depth > 1 and coin_flip(cpdf))) {
-        Vector3D wi = o2w * *w_in;
+        Vector3D wi = o2w * w_in;
         Ray new_ray = Ray(hit_p + EPS_D * wi, wi, INF_D, r.depth - 1);
         Intersection i;
-        Interaction ita(phase);
         if (bvh -> intersect(new_ray, &i)) {
           for (size_t j = 0; j < 2; j++) {
 
-            DistanceSampler1D *distanceSampler = new DistanceSampler1D(extinction_coef);
+            Interaction ita;
             float pdf_dist;
+            distanceSampler -> set_ray(new_ray.o, new_ray.d);
             double sampled_dist = distanceSampler -> get_sample(&pdf_dist);
-            delete distanceSampler;
             if (sampled_dist >= i.t) {
               ita.interacted = false;
               pdf_dist = exp(- extinction_coef * i.t);
             }
             else {
               // ita.interacted = false;
+              Vector3D next_ita_point = new_ray.o + new_ray.d * sampled_dist;
+              SchlickPhase *phase_pos = new SchlickPhase(pos2phase(next_ita_point));
+
               ita.interacted = true;
               ita.t = sampled_dist;
               new_ray.max_t = sampled_dist;
               ita.n = -new_ray.d;
-              ita.phase = phase;
+              ita.phase = phase_pos;
             } 
             Spectrum radiance_in = at_least_one_bounce_radiance(new_ray, i, ita);
             if (pdf_dir != 0)
-              L_out += (1. / 2. ) * scattering_coef / extinction_coef *
+              L_out += (1. / 2. ) * pos2scattering(hit_p) / pos2extinction(hit_p) *
                 radiance_in * sampled_phase_f / pdf_dir / cpdf;
           }
         }
       }
-      delete w_in;
       
       return L_out;
     }
@@ -425,7 +427,7 @@ namespace CGL {
 
   Spectrum PathTracer::est_radiance_global_illumination(const Ray &r) {
     Intersection isect;
-    Interaction interact(phase);
+    Interaction interact;
     Spectrum L_out = Spectrum();
 
     // You will extend this in assignment 3-2. 
@@ -433,7 +435,7 @@ namespace CGL {
     // This changes if you implement hemispherical lighting for extra credit.
 
     if (!bvh->intersect(r, &isect)) {
-      ;
+      isect.t = INF_D;
       // return envLight ? envLight -> sample_dir(r) : L_out;
       // return L_out;
     }
@@ -456,15 +458,16 @@ namespace CGL {
     // camera freshly. Sample the distance of the first interaction (reflection/
     // /scattering) here.
     for (size_t i = 0; i < ns_dist; i++) {
-      DistanceSampler1D* distanceSampler = new DistanceSampler1D(extinction_coef);
       float pdf;
+      distanceSampler -> set_ray(r.o, r.d);
       double sampled_dist = distanceSampler -> get_sample(&pdf);
-      delete distanceSampler;
 
       // if sampled distance is no less than the distance to the nearest surface, 
       // then the emission from the surface successfully penetrate the medium and 
       // arrive at the camera
       if (sampled_dist >= isect.t) {
+        // std::cout << "reflect " << sampled_dist << " " << isect.t << std::endl;
+  
         interact.interacted = false;
         double pre_pdf = pdf;
         pdf = exp(- extinction_coef * isect.t);
@@ -477,14 +480,19 @@ namespace CGL {
       }
       // if sampled distance is no less than the distance to the nearest surface, 
       else {
+        // std::cout << "scatter " << sampled_dist << std::endl;
+        
         interact.interacted = true;
         // interact.interacted = false;
+        Vector3D next_ita_point = r.o + r.d * sampled_dist;
+        SchlickPhase *phase_pos = new SchlickPhase(pos2phase(next_ita_point));
+        
         interact.t = sampled_dist;
         r.max_t = sampled_dist;
         interact.n = -r.d;
-        interact.phase = phase;
+        interact.phase = phase_pos;
         Spectrum to_add = 1. / double(ns_dist) * 
-          scattering_coef / extinction_coef * 
+          // pos2scattering(ita_point) / pos2extinction(hit_p) * 
           (zero_bounce_radiance(r, isect, interact) + 
           at_least_one_bounce_radiance(r, isect, interact));
         L_out += to_add;
@@ -535,11 +543,11 @@ namespace CGL {
         Vector2D p = origin + gridSampler -> get_sample();
 
         Vector2D samplesForLens = gridSampler -> get_sample();
-        Ray ray = camera -> generate_ray_for_thin_lens(
-          p.x / width, p.y / height, 
-          samplesForLens.x, samplesForLens.y * 2.0 * PI);
+        // Ray ray = camera -> generate_ray_for_thin_lens(
+        //   p.x / width, p.y / height, 
+        //   samplesForLens.x, samplesForLens.y * 2.0 * PI);
         
-        // Ray ray = camera -> generate_ray(p.x / width, p.y / height);
+        Ray ray = camera -> generate_ray(p.x / width, p.y / height);
         
         ray.depth = max_ray_depth;
         Spectrum radiance_in = est_radiance_global_illumination(ray);

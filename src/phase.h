@@ -127,6 +127,8 @@ class SchlickPhase : public Phase {
 
   SchlickPhase() : k(Spectrum(0.2, 0.2, 0.4)) { }
   SchlickPhase(const double &k) : k(Spectrum(k, k, k)) { }
+  SchlickPhase(const Spectrum &k) : k(k) { }
+  ~SchlickPhase() { }
 
   Spectrum f(const Vector3D& wo, const Vector3D& wi);
   Spectrum sample_f(const Vector3D& wo, Vector3D* wi, float* pdf);

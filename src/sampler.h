@@ -2,6 +2,7 @@
 #define CGL_SAMPLER_H
 
 #include "CGL/vector2D.h"
+#include "CGL/spectrum.h"
 #include "CGL/vector3D.h"
 #include "CGL/misc.h"
 #include "random_util.h"
@@ -121,25 +122,39 @@ class HenyeyGreensteinSampler3D : public Sampler3D {
 
 class SchlickSampler3D : public Sampler3D {
  public:
-  SchlickSampler3D() : k(Spectrum(0., 0., 0.)) {}
+  SchlickSampler3D() : k(Spectrum(0.2, 0.4, 0.4)) {}
   SchlickSampler3D(Spectrum &k) : k(k) {}
   Vector3D get_sample() const;
   Vector3D get_sample(float* pdf) const;
   
  private:
   Spectrum k;
-}; // class SchlickSampler3D
+}; 
 
 class DistanceSampler1D : public Sampler1D {
  public:
-  DistanceSampler1D() : extinction(0.5) {}
-  DistanceSampler1D(double &extinction) : extinction(extinction) {}
+  DistanceSampler1D(double (*pos2extinction)(const Vector3D&)) : pos2extinction(pos2extinction) {}
+  double set_ray(const Vector3D& o, const Vector3D& d) { origin = o; direction = d; };
   double get_sample() const;
   double get_sample(float* pdf) const;
   
  private:
-  double extinction;
-}; // class DistanceSampler1D
+  double (*pos2extinction)(const Vector3D&);
+  double max_t;
+  Vector3D origin;
+  Vector3D direction;
+};
+
+// class DistanceSampler1D : public Sampler1D {
+//  public:
+//   DistanceSampler1D(double extinction) : extinction(extinction) {}
+//   double get_sample() const;
+//   double get_sample(float* pdf) const;
+  
+//  private:
+//   double extinction;
+// }; // class DistanceSampler1D
+
 } // namespace CGL
 
 
