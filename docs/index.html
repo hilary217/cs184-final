@@ -17,78 +17,95 @@
 <br />
 <h1 align="middle">Assignment :Final Project</h1>
     <h2 align="middle">Kaifei Peng, Jinrui Zhang, Ruixin Huang</h2>
-
+    <br></br>
     <div class="padded">
             <h2 align="middle">Abstract</h2>
         <p>We expand our model for the behavior of light by considering effects caused by participating media, which is generally known as scattering. In our project, we implemented the behavior for both homogenous and non-homogenous
               participating media. 
       </p>
+      <br></br>
+  
     <h2 align="middle">Technical approach</h2>
     
     <p> We are implementing volumetric scattering rendering in accordance with the paper provided in the project idea page (i.e. [1]). We chose to extend and modify the codes in project 3, which we consider is a good starting point of our rendering. We have basically implemented the random walk ray tracing introduced in the chapter 3 of paper [1] and substitute the old ray tracing method in project 3 with this new one. After substitution, reflecting and scattering events can be both rendered correctly, while only reflecting can be done using old method. After that, we extended our implementation
       to non-homogeneous media following the general idea introduced in chapter 5 of the paper.
     </p>
 
+    <br></br>
 
     <h2 align="middle">Implementation details </h2>
     
-    
 
-    <h2 align="middle">Implementations details for at_least_one_bounce </h2>
+    <h3 align="middle">Implementations details for at_least_one_bounce </h3>
     <p>We have modified ray tracing code in project 3. Speficially, in at_least_one_bounce(), we first sample a travelling distance for the currently traced ray using DistanceSampler(), denoted by d. If d is less than the distance to the nearest surface, we can assume that the ray is “intercepted” before it reaches and surface and is reflected,  in this case we set the “interaction” as “scattering”. Otherwise, the ray reaches the surface and is reflected as implemented in project 3, and the “interaction” is set to “reflecting”.
 
-    </p>Pseudocode for at_least_one_bounce(Point p, Ray ray_in, Interaction interaction)</p>
-    <h2 align="middle">Pseudocode for at_least_one_bounce(Point p, Ray ray_in, Interaction interaction) </h2>
+      <br></br>
+    <h3 align="middle">Pseudocode for at_least_one_bounce(Point p, Ray ray_in, Interaction interaction) </h3>
+
+    <br></br>
     <img src="3.png" width="300px" />
     <img src="5.png" width="300px" />
     <img src="4.png" width="360px" />
+    
+    <br></br>
 
-    <h2 align="middle"> Implementation details for distance sampler</h2>
+    <h3 align="middle"> Implementation details for distance sampler</h3>
     <p>For each ray-environment interaction, we use importance sampling to estimate the direct illumination. For each imcoming light, we multiply the incoming radiance with a cosine term and a brdf term if the interaction is “reflecting”; otherwise (when interaction is “scatteing”), we multiply with a phase function term and some coeffients related to the optic property of medium in the atmosphere. Formally, the formulas are expressed as below:</p>
-    <h2 align="middle">Pseudocode for Distance sampling in homogenous medium  </h2>
+    <h3 align="middle">Pseudocode for Distance sampling in homogenous medium  </h3>
     <img src="6.png" width="360px" />
-
-    <h2 align="middle">Pseudocode for Distance sampling in non-homogenous medium  </h2>
+    <br></br>
+    <h3 align="middle">Pseudocode for Distance sampling in non-homogenous medium  </h3>
     <img src="7.png" width="360px" />
     <img src="8.png" width="360px" />
-
-    <h2 align="middle">Pseudocode for extinction coeffcient in non-homogenous medium </h2>
+    <br></br>
+    <h3 align="middle">Pseudocode for extinction coeffcient in non-homogenous medium </h3>
     <img src="9.png" width="480px" />
     <img src="10.png" width="480px" />
 
 
-
-    <h2 align="middle">challenges we have encountered and how we tackled them</h2>
-    <p><br>(1)getting the pdf for next_ray using inversion method, we used mathmatic tools.</br>
-      (2)getting the right picture to render and changing the parameters, we determine our parameters with experiments and think deeper about what what each parameter affects.
+    <br></br>
+    <h2 align="middle">Challenges we have encountered and how we tackled them</h2>
+    <p><br>(1)Getting the pdf for next_ray using inversion method, we used schilick phase function and did the math.</br>
+      <br>(2) We can't use the collada parsers from proj3 due to incompleness, so we complete it before we start rendering.</br>
+      <br>(3)Getting the right picture to render and changing the parameters, we determine our parameters with experiments and think deeper about what what each parameter affects.</br>
       </p>
 
-    
-    <h2 align="middle">results : Link to Video</h2>
-    <a href="https://www.youtube.com/watch?v=EHtnJjaOIeQ&feature=youtu.be">here</a>
-
+    <br></br>
+    <h2 align="middle">Results : Link to Video</h2>
+    <a href="https://youtu.be/ZXoUSmiD0lo">here</a>
+    <br></br>
     <h2 align="middle">References</h2>
     <p>[1] Eric P. Lafortune and Yves D. Willems, Rendering Participating Media with Bidirectional Path Tracing, 7th Eurographics Workshop on Rendering</p>
+    <br></br>
+    <h2 align="middle">Contributions</h2>
 
-    <h2 aligh="middle">contributions</h2>
+    <p>
+          <br>Jinrui Zhang</br>
+          <br>(1)Building various 3D models using blender for rendering</br>
+          <br>(2)Modified collada parsers from proj3 for rendering scenes with scattering</br>
+            </br> (3)Made the wonderful video linked above</br>
+      
+
+            <br>Ruixin Huang</br>
+            <br>
+            (1)Building the pseudocode and working out frames for the project by summarizing from papers and making clear of our goals and how to get there</br>
+            <br>(2)Implementated spotlight that has multiple parameters for us to play with </br>
+              </br> (3)Making the website and slides, documenting our progress and writing out the summaries for presentations. </br>
+
+    <br>Kaifei Peng</br>
+    <br>Extended proj3-1 code by implementing various additional features for scattering, including</br>
+    <br>(1)Distance-sampling and phase-function,</br> (2)Calculating out going radiance using scattering equation
+     <br>(3)Direct illumination estimation in non-homogenous medium
 
 
 
 
-   
 
-      <h2 align="middle">Summary</h2>
-      <p>Important pseudo codes can be viewed in our milestone video/slides.
-            In summary, at this point we have done:
-      <br>
-            (1) Designing phase function and a pdf-based sampler for sampling direction of next bounce with inverse method.
       </br>
-            (2) Designing a distance sampler according to [1] using inverse method;
-      <br>
-            (3) Modify the skeleton and functions defined to fit scattering effects into our work.
-      </br>
-            
-            </p>
+      </p>
+
+
+    
 
     
    
