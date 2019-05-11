@@ -3,6 +3,7 @@
 
 #include "CGL/vector2D.h"
 #include "CGL/spectrum.h"
+#include "ray.h"
 #include "CGL/vector3D.h"
 #include "CGL/misc.h"
 #include "random_util.h"
@@ -133,16 +134,18 @@ class SchlickSampler3D : public Sampler3D {
 
 class DistanceSampler1D : public Sampler1D {
  public:
-  DistanceSampler1D(double (*pos2extinction)(const Vector3D&)) : pos2extinction(pos2extinction) {}
-  double set_ray(const Vector3D& o, const Vector3D& d) { origin = o; direction = d; };
+  DistanceSampler1D(double (*pos2extinction)(const Vector3D&), double step)
+   : pos2extinction(pos2extinction), ray(NULL), step(step) { }
+  void set_ray(Ray* r) { ray = r; };
+  void set_max_t(double t) { max_t = t; };
   double get_sample() const;
   double get_sample(float* pdf) const;
   
  private:
-  double (*pos2extinction)(const Vector3D&);
+  Ray* ray;
+  double step;
   double max_t;
-  Vector3D origin;
-  Vector3D direction;
+  double (*pos2extinction)(const Vector3D&);
 };
 
 // class DistanceSampler1D : public Sampler1D {

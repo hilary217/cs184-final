@@ -16,8 +16,30 @@ namespace CGL {
     // Estimate the radiance to at the recv point
     // the radiance are absorbed/out-scattered by the medium
     // while travelling from light source to the recv point 
-    double dist = (src - recv).norm();
-    return src_radiance * exp(- extinction_coef * dist);
+
+    // return src_radiance * exp(-0.25 * (src - recv).norm());
+
+    double max_t = (src - recv).norm();
+    Vector3D d = (recv - src).unit();
+
+    double extinction, optical_depth = 0., total_dist = 0.;
+    // printf("max_t: %f\n", max_t);
+    
+    while (true) {
+      extinction = pos2extinction(src + d * total_dist);
+
+      // have reached the nearest surface
+      if (total_dist + space_step > max_t) {
+        optical_depth += extinction * (max_t - total_dist);
+        break;
+      }
+      else {
+        optical_depth += extinction * space_step;
+        total_dist += space_step;
+      }
+    }
+    
+    return src_radiance * exp(-optical_depth);
   }
 
   Spectrum PathTracer::estimate_direct_lighting_hemisphere(
@@ -175,7 +197,7 @@ namespace CGL {
             // cout << "area " << pdf << endl;
             // cout << "ns_area_light " << ns_area_light << endl;
             
-            if (cos_theta(w_in) < 0) continue;
+            // if (cos_theta(w_in) < 0) continue;
 
             Vector3D biased_hit_p = hit_p + EPS_D * wi;
             
@@ -232,6 +254,8 @@ namespace CGL {
             Vector3D light_pos = biased_hit_p + dist * wi;
             Spectrum L_reduced = estimate_reduced_radiance(
               radiance_in, light_pos, biased_hit_p);
+            // std::cout << "Sample_L: " << radiance_in << std::endl;
+            // std::cout << "L_reduced: " << L_reduced << std::endl;
             L_out += pos2scattering(hit_p) / pos2extinction(hit_p) *
               L_reduced * interact.phase -> f(w_out, w_in) / pdf;
             // std::cout << "phase delta: " << L_out << std::endl;
@@ -266,7 +290,6 @@ namespace CGL {
         }
         
       }
-
       return L_out;
     }
 
@@ -334,14 +357,16 @@ namespace CGL {
             
             Interaction ita;
             float pdf_dist;
-            distanceSampler -> set_ray(new_ray.o, new_ray.d);
+            DistanceSampler1D* distanceSampler = new DistanceSampler1D(&pos2extinction, space_step);
+            distanceSampler -> set_ray(&new_ray);
+            distanceSampler -> set_max_t(i.t);
             double sampled_dist = distanceSampler -> get_sample(&pdf_dist);
+            delete distanceSampler;
+
             if (sampled_dist >= i.t) {
               ita.interacted = false;
-              pdf_dist = exp(- extinction_coef * i.t);
             }
             else {
-              // ita.interacted = false;
               Vector3D next_ita_point = new_ray.o + new_ray.d * sampled_dist;
               SchlickPhase *phase_pos = new SchlickPhase(pos2phase(next_ita_point));
 
@@ -396,14 +421,15 @@ namespace CGL {
 
             Interaction ita;
             float pdf_dist;
-            distanceSampler -> set_ray(new_ray.o, new_ray.d);
+            DistanceSampler1D* distanceSampler = new DistanceSampler1D(&pos2extinction, space_step);
+            distanceSampler -> set_ray(&new_ray);
+            distanceSampler -> set_max_t(i.t);
             double sampled_dist = distanceSampler -> get_sample(&pdf_dist);
+            delete distanceSampler;
             if (sampled_dist >= i.t) {
               ita.interacted = false;
-              pdf_dist = exp(- extinction_coef * i.t);
             }
             else {
-              // ita.interacted = false;
               Vector3D next_ita_point = new_ray.o + new_ray.d * sampled_dist;
               SchlickPhase *phase_pos = new SchlickPhase(pos2phase(next_ita_point));
 
@@ -420,12 +446,15 @@ namespace CGL {
           }
         }
       }
+      // if (r.depth == max_ray_depth) {
+      //   std::cout << L_out << std::endl;
+      // }
       
       return L_out;
     }
   }
 
-  Spectrum PathTracer::est_radiance_global_illumination(const Ray &r) {
+  Spectrum PathTracer::est_radiance_global_illumination(Ray &r) {
     Intersection isect;
     Interaction interact;
     Spectrum L_out = Spectrum();
@@ -459,8 +488,12 @@ namespace CGL {
     // /scattering) here.
     for (size_t i = 0; i < ns_dist; i++) {
       float pdf;
-      distanceSampler -> set_ray(r.o, r.d);
+      DistanceSampler1D* distanceSampler = new DistanceSampler1D(&pos2extinction, space_step);
+      distanceSampler -> set_ray(&r);
+      distanceSampler -> set_max_t(isect.t + EPS_F);
       double sampled_dist = distanceSampler -> get_sample(&pdf);
+      delete distanceSampler;
+      // std::cout << "isect: " << isect.t << std::endl;
 
       // if sampled distance is no less than the distance to the nearest surface, 
       // then the emission from the surface successfully penetrate the medium and 
@@ -469,8 +502,6 @@ namespace CGL {
         // std::cout << "reflect " << sampled_dist << " " << isect.t << std::endl;
   
         interact.interacted = false;
-        double pre_pdf = pdf;
-        pdf = exp(- extinction_coef * isect.t);
         Spectrum to_add = 1. / double(ns_dist) *
         // Spectrum to_add = 1. / double(ns_dist) * pre_pdf / pdf *
           (zero_bounce_radiance(r, isect, interact) + 
@@ -483,7 +514,6 @@ namespace CGL {
         // std::cout << "scatter " << sampled_dist << std::endl;
         
         interact.interacted = true;
-        // interact.interacted = false;
         Vector3D next_ita_point = r.o + r.d * sampled_dist;
         SchlickPhase *phase_pos = new SchlickPhase(pos2phase(next_ita_point));
         
@@ -492,11 +522,9 @@ namespace CGL {
         interact.n = -r.d;
         interact.phase = phase_pos;
         Spectrum to_add = 1. / double(ns_dist) * 
-          // pos2scattering(ita_point) / pos2extinction(hit_p) * 
           (zero_bounce_radiance(r, isect, interact) + 
           at_least_one_bounce_radiance(r, isect, interact));
         L_out += to_add;
-        // std::cout << "scatter " << to_add << std::endl;
       }
     }
 

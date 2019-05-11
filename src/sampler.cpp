@@ -122,13 +122,49 @@ double DistanceSampler1D::get_sample() const {
   return get_sample(&f);
 }
 
+// double DistanceSampler1D::get_sample(float *pdf) const {
+//   double extinction = pos2extinction(ray -> o);
+//   double u = random_uniform();
+//   double distance;
+//   distance = - log(1. - u) / extinction;
+//   *pdf = extinction * exp(- extinction * distance);
+//   return distance;
+// }
+
 double DistanceSampler1D::get_sample(float *pdf) const {
-  double extinction = pos2extinction(origin);
-  double u = random_uniform();
-  double distance;
-  distance = - log(1. - u) / extinction;
-  *pdf = extinction * exp(- extinction * distance);
-  return distance;
+  double u, extinction = 0., delta_dist, total_dist = 0.;
+  *pdf = 1.;
+  float pre_pdf = 1.; double pre_extinction = 0.;
+  // printf("max_t: %f\n", max_t);
+  
+  while (true) {
+    u = random_uniform();
+    pre_extinction = extinction;
+    extinction = pos2extinction(ray -> o + ray -> d * total_dist);
+    delta_dist = - log(1. - u) / extinction;
+
+    // have reached the nearest surface
+    if (total_dist > max_t) {
+      // backtrack to last step
+      delta_dist = max_t - (total_dist - step);
+      total_dist = max_t + EPS_F;
+      *pdf = pre_pdf * exp(- pre_extinction * delta_dist);
+      break;
+    }
+
+    if (delta_dist < step) {
+      pre_pdf = *pdf;
+      *pdf *= extinction * exp(- extinction * delta_dist);
+      total_dist += delta_dist;
+      break;    
+    }
+    else {
+      pre_pdf = *pdf;
+      *pdf *= exp(- extinction * step);
+      total_dist += step;
+    }
+  }
+  return total_dist;
 }
 
 } // namespace CGL

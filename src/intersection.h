@@ -23,11 +23,8 @@ struct Intersection {
   Intersection() : t (INF_D), primitive(NULL), bsdf(NULL) { }
 
   double t;    ///< time of intersection
-
   const Primitive* primitive;  ///< the primitive intersected
-
   Vector3D n;  ///< normal at point of intersection
-
   BSDF* bsdf; ///< BSDF of the surface at point of intersection
 
   // More to follow.
@@ -36,7 +33,7 @@ struct Intersection {
 struct Interaction {
 
   Interaction() : t (INF_D), interacted(false) { }
-  Interaction(Phase* phase) : t (INF_D), interacted(false), phase(phase) { }
+  Interaction(Phase* phase) : t(INF_D), interacted(false), phase(phase) { }
   // ~Interaction() {delete phase;}
 
   double t;

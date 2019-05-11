@@ -69,16 +69,11 @@ PathTracer::PathTracer(size_t ns_aa,
   gridSampler = new UniformGridSampler2D();
   hemisphereSampler = new UniformHemisphereSampler3D();
 
-  // kumo and sora
-  extinction_coef = 0.1;
-  scattering_coef = 0.8;
-  // extinction_coef = 0.25;
-  // scattering_coef = 0.7;
   ns_dist = 48;
+  space_step = 0.5;
 
   phase = new SchlickPhase(Spectrum(-0.5, -0.5, 0.5));
   sphereSampler = new UniformSphereSampler3D();
-  distanceSampler = new DistanceSampler1D(&pos2extinction);
 
   show_rays = true;
 
@@ -100,7 +95,6 @@ PathTracer::~PathTracer() {
   delete hemisphereSampler;
   delete phase;
   delete sphereSampler;
-  delete distanceSampler;
 
 }
 
@@ -108,49 +102,7 @@ PathTracer::~PathTracer() {
 //   return Spectrum(0.5, 0.5, 0.5);
 // }
 
-// // kumo and sora
-// Spectrum PathTracer::pos2phase(const Vector3D& pos) {
-//   double x = pos.x, y = pos.y, z = pos.z;
-
-//   // double a = 20.;
-//   // double u = random_uniform(); double v = random_uniform(); double w = random_uniform();
-//   // double noise_r = - log(1. / u - 1.) / a;
-//   // double noise_g = - log(1. / v - 1.) / a;
-//   // double noise_b = - log(1. / w - 1.) / a;
-
-//   double noise_r = 0., noise_g = 0., noise_b = 0.;
-
-//   // cout << "noise below" << endl;
-//   // cout << noise_r << " " << noise_g << " " << noise_b << endl;
-
-//   // if (pos.x > -0.5 && pos.x < 0.5
-//   //   && pos.x > -0.5 && pos.x < 0.5
-//   //   && pos.x > -5.5 && pos.x < -3.5) {
-//   if ((pow(x, 2.) / 1.5 + pow(y, 2.) / 0.25 + pow((z + 4.), 2.) / 2.0 < 1.)
-//     || (pow(x - .85, 2.) / 0.75 + pow(y, 2.) / 0.125 + pow((z + 4.), 2.) / 1.0 < 1.)
-//     || (pow(x + .8, 2.) / 0.75 + pow(y + .25, 2.) / 0.125 + pow((z + 4.), 2.) / 1.0 < 1.)) {
-//     // cout << pos << endl;
-//     // return Spectrum(.8, .8, -.9); // kumo
-//     Spectrum rtr = Spectrum(
-//       clamp(.8 + noise_r, -1., 1.), 
-//       clamp(.8 + noise_g, -1., 1.), 
-//       clamp(-.9 + noise_b, -1., 1.)); // kumo
-//     return rtr;
-//   }
-
-//   else {
-//     double bias = 2.5 / (pow((x - 1.), 2.) + pow((y - 1.), 2.) + pow((z + 3.), 2.));
-//     // double bias = 0.;
-//     Spectrum rtr = Spectrum(
-//       clamp(-.7 + bias + noise_r, -1., 1.), 
-//       clamp(-.3 + bias + noise_g, -1., 1.), 
-//       clamp(.9 + - bias + noise_b, -1., 1.)); // sora
-//     return rtr;
-//     // return Spectrum(-0.5, -0.5, 0.5); //sora
-//   }
-// }
-
-// rainbow
+// kumo and sora
 Spectrum PathTracer::pos2phase(const Vector3D& pos) {
   double x = pos.x, y = pos.y, z = pos.z;
 
@@ -162,26 +114,124 @@ Spectrum PathTracer::pos2phase(const Vector3D& pos) {
 
   double noise_r = 0., noise_g = 0., noise_b = 0.;
 
-  double bias = 3.5 / (pow((x - 1.), 2.) + pow((y - 1.), 2.) + pow((z + 3.), 2.));
-  // double bias = 0.;
-  // cout << bias << endl;
-  Spectrum rtr = Spectrum(
-    clamp((-.7 + 1.4 * bias + noise_r), -1., 1.), 
-    clamp((-.3 + 1.2 * bias + noise_g), -1., 1.), 
-    clamp((.9 - bias + noise_b), -1., 1.)); // sora
-  return rtr;
-  // return Spectrum(-0.5, -0.5, 0.5); //sora
-  
+  // cout << "noise below" << endl;
+  // cout << noise_r << " " << noise_g << " " << noise_b << endl;
+
+  // if (pos.x > -0.5 && pos.x < 0.5
+  //   && pos.x > -0.5 && pos.x < 0.5
+  //   && pos.x > -5.5 && pos.x < -3.5) {
+  if ((pow(x, 2.) / 1.5 + pow(y, 2.) / 0.25 + pow((z + 4.), 2.) / 2.0 < 1.)
+    || (pow(x - .85, 2.) / 0.75 + pow(y, 2.) / 0.125 + pow((z + 4.), 2.) / 1.0 < 1.)
+    || (pow(x + .8, 2.) / 0.75 + pow(y + .25, 2.) / 0.125 + pow((z + 4.), 2.) / 1.0 < 1.)) {
+    // cout << pos << endl;
+    // return Spectrum(.8, .8, -.9); // kumo
+    Spectrum rtr = Spectrum(
+      clamp(.5 + noise_r, -1., 1.), 
+      clamp(.5 + noise_g, -1., 1.), 
+      clamp(-.5 + noise_b, -1., 1.)); // kumo
+    return rtr;
+  }
+
+  else {
+    // double bias = 2.5 / (pow((x - 1.), 2.) + pow((y - 1.), 2.) + pow((z + 3.), 2.));
+    double bias = 0.;
+    Spectrum rtr = Spectrum(
+      clamp(-.5 + bias + noise_r, -1., 1.), 
+      clamp(-.5 + bias + noise_g, -1., 1.), 
+      clamp(.9 + - bias + noise_b, -1., 1.)); // sora
+    return rtr;
+    // return Spectrum(-0.5, -0.5, 0.5); //sora
+  }
 }
+
+// // rainbow
+// Spectrum PathTracer::pos2phase(const Vector3D& pos) {
+//   double x = pos.x, y = pos.y, z = pos.z;
+
+//   // double a = 20.;
+//   // double u = random_uniform(); double v = random_uniform(); double w = random_uniform();
+//   // double noise_r = - log(1. / u - 1.) / a;
+//   // double noise_g = - log(1. / v - 1.) / a;
+//   // double noise_b = - log(1. / w - 1.) / a;
+
+//   double noise_r = 0., noise_g = 0., noise_b = 0.;
+
+//   double bias = 3.5 / (pow((x - 1.), 2.) + pow((y - 1.), 2.) + pow((z + 3.), 2.));
+//   // double bias = 0.;
+//   // cout << bias << endl;
+//   Spectrum rtr = Spectrum(
+//     clamp((-.7 + 1.4 * bias + noise_r), -1., 1.), 
+//     clamp((-.3 + 1.2 * bias + noise_g), -1., 1.), 
+//     clamp((.9 - bias + noise_b), -1., 1.)); // sora
+//   return rtr;
+//   // return Spectrum(-0.5, -0.5, 0.5); //sora
+  
+// }
+
+// double PathTracer::pos2extinction(const Vector3D& pos) {
+//   return 0.1; // for kumo and sora
+//   // return 0.25; // for bunny in the room
+// }
 
 double PathTracer::pos2extinction(const Vector3D& pos) {
-  return 0.1;
-  // return 0.25;
+  double x = pos.x, y = pos.y, z = pos.z;
+
+  double a = 100.;
+  double u = random_uniform();
+  double noise = - log(1. / u - 1.) / a;
+
+  // double noise = 0.;
+
+  // cout << "noise below" << endl;
+  // cout << noise << endl;
+
+  // if (pos.x > -0.5 && pos.x < 0.5
+  //   && pos.x > -0.5 && pos.x < 0.5
+  //   && pos.x > -5.5 && pos.x < -3.5) {
+  if ((pow(x, 2.) / 1.5 + pow(y, 2.) / 0.25 + pow((z + 4.), 2.) / 2.0 < 1.)
+    || (pow(x - .85, 2.) / 0.75 + pow(y, 2.) / 0.125 + pow((z + 4.), 2.) / 1.0 < 1.)
+    || (pow(x + .8, 2.) / 0.75 + pow(y + .25, 2.) / 0.125 + pow((z + 4.), 2.) / 1.0 < 1.)) {
+    return 0.3 + noise;
+  }
+
+  else {
+    // double bias = 2.5 / (pow((x - 1.), 2.) + pow((y - 1.), 2.) + pow((z + 3.), 2.));
+    double bias = 0.;
+    return 0.1 + bias;
+  }
 }
 
+// double PathTracer::pos2scattering(const Vector3D& pos) {
+//   return 0.2; // for kumo and sora
+//   // return 2.5; // for bunny in the room
+// }
+
 double PathTracer::pos2scattering(const Vector3D& pos) {
-  return 0.2;
-  // return 0.7;
+  double x = pos.x, y = pos.y, z = pos.z;
+
+  double a = 100.;
+  double u = random_uniform();
+  double noise = - log(1. / u - 1.) / a;
+
+  // double noise = 0.;
+
+  // cout << "noise below" << endl;
+  // cout << noise << endl;
+
+  // if (pos.x > -0.5 && pos.x < 0.5
+  //   && pos.x > -0.5 && pos.x < 0.5
+  //   && pos.x > -5.5 && pos.x < -3.5) {
+  if ((pow(x, 2.) / 1.5 + pow(y, 2.) / 0.25 + pow((z + 4.), 2.) / 2.0 < 1.)
+    || (pow(x - .85, 2.) / 0.75 + pow(y, 2.) / 0.125 + pow((z + 4.), 2.) / 1.0 < 1.)
+    || (pow(x + .8, 2.) / 0.75 + pow(y + .25, 2.) / 0.125 + pow((z + 4.), 2.) / 1.0 < 1.)) {
+    return 0.6 + noise;
+  }
+
+  else {
+    // double bias = 2.5 / (pow((x - 1.), 2.) + pow((y - 1.), 2.) + pow((z + 3.), 2.));
+    double bias = 0.;
+    return 0.2 + bias;
+  }
 }
 
 void PathTracer::set_scene(Scene *scene) {

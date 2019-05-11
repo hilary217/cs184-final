@@ -189,7 +189,7 @@ class PathTracer {
   Spectrum estimate_direct_lighting_hemisphere(const Ray &r, const StaticScene::Intersection& isect, const StaticScene::Interaction& interact);
   Spectrum estimate_direct_lighting_importance(const Ray &r, const StaticScene::Intersection& isect, const StaticScene::Interaction& interact);
 
-  Spectrum est_radiance_global_illumination(const Ray &r); 
+  Spectrum est_radiance_global_illumination(Ray &r); 
   Spectrum zero_bounce_radiance(const Ray &r, const StaticScene::Intersection& isect, const StaticScene::Interaction& interact);
   Spectrum one_bounce_radiance(const Ray &r, const StaticScene::Intersection& isect, const StaticScene::Interaction& interact);
   Spectrum at_least_one_bounce_radiance(const Ray &r, const StaticScene::Intersection& isect, const StaticScene::Interaction& interact);
@@ -268,15 +268,13 @@ class PathTracer {
   Timer timer;                   ///< performance test timer
   
   // for final project
-  double extinction_coef;
-  double scattering_coef;
   size_t ns_dist;
   Phase* phase;
-  DistanceSampler1D *distanceSampler;
   Sampler3D* sphereSampler;
   Spectrum pos2phase(const Vector3D& pos);
   static double pos2extinction(const Vector3D& pos);
   static double pos2scattering(const Vector3D& pos);
+  double space_step;
 
   std::vector<int> sampleCountBuffer;   ///< sample count buffer
 
