@@ -1,3 +1,3 @@
-# Assignment 3: PathTracer
+Volumetric Scattering Rendering
 
-http://462cmu.github.io/asst3_pathtracer/
+Introduction is available at docs/index.html
